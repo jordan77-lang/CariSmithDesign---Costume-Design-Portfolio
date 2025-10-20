@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery - Cari Smith Design</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Playfair Display', Georgia, serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .gallery-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 2.5em;
+        }
+        
+        /* Main image display */
+        .main-image-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 30px;
+            background: #000;
+        }
+        
+        .main-image {
+            width: 100%;
+            height: auto;
+            max-height: 600px;
+            object-fit: contain;
+            display: block;
+        }
+        
+        .image-caption {
+            text-align: center;
+            padding: 15px;
+            font-size: 1.2em;
+            color: #555;
+            min-height: 50px;
+        }
+        
+        /* Hide image counter */
+        .image-counter {
+            display: none;
+        }
+        
+        /* Navigation buttons */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            font-size: 40px;
+            padding: 20px 15px;
+            cursor: pointer;
+            color: #333;
+            transition: background 0.3s;
+            z-index: 10;
+        }
+        
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        .nav-button.prev {
+            left: 0;
+        }
+        
+        .nav-button.next {
+            right: 0;
+        }
+        
+        /* Filmstrip container */
+        .filmstrip-container {
+            position: relative;
+            margin-top: 20px;
+            background: #222;
+            padding: 15px 50px;
+            border-radius: 5px;
+        }
+        
+        /* Thumbnail filmstrip */
+        .thumbnail-grid {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+            padding: 5px 0;
+        }
+        
+        .thumbnail {
+            min-width: 120px;
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        
+        .thumbnail:hover {
+            transform: scale(1.05);
+            border-color: #fff;
+        }
+        
+        .thumbnail.active {
+            border-color: #2196F3;
+            box-shadow: 0 0 10px rgba(33, 150, 243, 0.8);
+            transform: scale(1.05);
+        }
+        
+        /* Filmstrip navigation arrows */
+        .filmstrip-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        
+        .filmstrip-arrow:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .filmstrip-arrow.left {
+            left: 10px;
+        }
+        
+        .filmstrip-arrow.right {
+            right: 10px;
+        }
+        
+        /* Scrollbar styling for filmstrip */
+        .thumbnail-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .thumbnail-grid::-webkit-scrollbar-track {
+            background: #333;
+            border-radius: 5px;
+        }
+        
+        .thumbnail-grid::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 5px;
+        }
+        
+        .thumbnail-grid::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+        
+        /* Hide autoplay controls */
+        .autoplay-controls {
+            display: none;
+        }
+        
+        /* Image counter */
+        .image-counter {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.1em;
+            color: #666;
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            .gallery-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .filmstrip-container {
+                padding: 15px 45px;
+            }
+            
+            .thumbnail {
+                min-width: 100px;
+                width: 100px;
+                height: 70px;
+            }
+            
+            .filmstrip-arrow {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+            
+            .nav-button {
+                font-size: 30px;
+                padding: 15px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery-container">
+        <h1>Photo Gallery</h1>
+        
+        <div class="main-image-container">
+            <button class="nav-button prev" onclick="changeImage(-1)">‹</button>
+            <img id="mainImage" class="main-image" src="" alt="Gallery Image">
+            <button class="nav-button next" onclick="changeImage(1)">›</button>
+        </div>
+        
+        <div class="image-caption" id="imageCaption"></div>
+        <div class="image-counter" id="imageCounter"></div>
+        
+        <div class="autoplay-controls">
+            <button class="autoplay-button" id="autoplayButton" onclick="toggleAutoplay()">▶ Start Slideshow</button>
+        </div>
+        
+        <div class="filmstrip-container">
+            <button class="filmstrip-arrow left" onclick="scrollFilmstrip(-1)">‹</button>
+            <div class="thumbnail-grid" id="thumbnailGrid"></div>
+            <button class="filmstrip-arrow right" onclick="scrollFilmstrip(1)">›</button>
+        </div>
+    </div>
+
+    <script src="carousel_images.js"></script>
+    <script>
+        let currentIndex = 0;
+        let autoplayInterval = null;
+        let isAutoplayActive = false;
+        
+        // Initialize gallery
+        function initGallery() {
+            if (!carouselImages || carouselImages.length === 0) {
+                document.querySelector('.gallery-container').innerHTML = '<p class="loading">No images found</p>';
+                return;
+            }
+            
+            // Create thumbnails
+            const grid = document.getElementById('thumbnailGrid');
+            carouselImages.forEach((img, index) => {
+                const thumbnail = document.createElement('img');
+                thumbnail.src = img.src;
+                thumbnail.alt = img.caption || `Image ${index + 1}`;
+                thumbnail.className = 'thumbnail';
+                thumbnail.onclick = () => {
+                    showImage(index);
+                    // Restart autoplay timer when manually clicking
+                    if (isAutoplayActive) {
+                        stopAutoplay();
+                        startAutoplay();
+                    }
+                };
+                grid.appendChild(thumbnail);
+            });
+            
+            // Show first image
+            showImage(0);
+            
+            // Auto-start slideshow on load
+            startAutoplay();
+        }
+        
+        // Show specific image
+        function showImage(index) {
+            if (index < 0) index = carouselImages.length - 1;
+            if (index >= carouselImages.length) index = 0;
+            
+            currentIndex = index;
+            const img = carouselImages[index];
+            
+            // Update main image
+            document.getElementById('mainImage').src = img.src;
+            // Remove trailing backslash from caption
+            const caption = img.caption || '';
+            document.getElementById('imageCaption').textContent = caption.replace(/\\+$/, '').trim();
+            document.getElementById('imageCounter').textContent = `${index + 1} / ${carouselImages.length}`;
+            
+            // Update active thumbnail
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+            
+            // Scroll thumbnail into view in filmstrip
+            if (thumbnails[index]) {
+                thumbnails[index].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
+        
+        // Navigate images
+        function changeImage(direction) {
+            showImage(currentIndex + direction);
+        }
+        
+        // Scroll filmstrip left/right
+        function scrollFilmstrip(direction) {
+            const grid = document.getElementById('thumbnailGrid');
+            const scrollAmount = 250; // Scroll by ~2 thumbnails
+            grid.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Toggle autoplay
+        function toggleAutoplay() {
+            if (isAutoplayActive) {
+                stopAutoplay();
+            } else {
+                startAutoplay();
+            }
+        }
+        
+        // Start autoplay
+        function startAutoplay() {
+            isAutoplayActive = true;
+            const button = document.getElementById('autoplayButton');
+            button.textContent = '⏸ Pause Slideshow';
+            button.classList.add('playing');
+            
+            autoplayInterval = setInterval(() => {
+                changeImage(1);
+            }, 3000); // Change image every 3 seconds
+        }
+        
+        // Stop autoplay
+        function stopAutoplay() {
+            isAutoplayActive = false;
+            const button = document.getElementById('autoplayButton');
+            button.textContent = '▶ Start Slideshow';
+            button.classList.remove('playing');
+            
+            if (autoplayInterval) {
+                clearInterval(autoplayInterval);
+                autoplayInterval = null;
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                changeImage(-1);
+                if (isAutoplayActive) stopAutoplay();
+            }
+            if (e.key === 'ArrowRight') {
+                changeImage(1);
+                if (isAutoplayActive) stopAutoplay();
+            }
+            if (e.key === ' ') {
+                e.preventDefault();
+                toggleAutoplay();
+            }
+        });
+        
+        // Stop autoplay when user interacts with main navigation
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (isAutoplayActive) stopAutoplay();
+            });
+        });
+        
+        // Initialize on load
+        window.onload = initGallery;
+    </script>
+</body>
+</html>
