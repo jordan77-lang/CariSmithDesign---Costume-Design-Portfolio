@@ -440,8 +440,7 @@ function filmstripShowImage(index) {
     const img = carouselImages[index];
     
     document.getElementById('filmstripMainImage').src = img.src;
-    const caption = img.caption || '';
-    document.getElementById('filmstripImageCaption').textContent = caption.replace(/\\+$/, '').trim();
+    document.getElementById('filmstripImageCaption').textContent = '';
     document.getElementById('filmstripImageCounter').textContent = `${index + 1} / ${carouselImages.length}`;
     
     const thumbnails = document.querySelectorAll('.filmstrip-thumbnail');
